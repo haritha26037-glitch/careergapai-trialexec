@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CareerGap AI — Your Pause. Your Power.</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --pink: #F4A7B9; --pink-dark: #C97B8A; --pink-light: #FDE8EE;
+  --green: #A8C5A0; --green-dark: #639922;
+  --bg: #FDF8F5; --white: #FFFFFF; --charcoal: #2C2C2A;
+  --grey: #888780; --grey-light: #F1EFE8; --border: #E8E0D8;
+  --error: #D85A30;
+  --radius-sm: 8px; --radius-md: 16px; --radius-lg: 24px;
+  --shadow: 0 2px 16px rgba(44,44,42,0.08);
+  --shadow-md: 0 4px 32px rgba(44,44,42,0.12);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--charcoal);min-height:100vh;}
+h1,h2,h3,h4{font-family:'Plus Jakarta Sans',sans-serif;}
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+
+/* TOAST */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--charcoal);color:#fff;padding:12px 24px;border-radius:var(--radius-lg);font-size:14px;font-weight:500;z-index:9999;transition:transform 0.3s ease,opacity 0.3s;opacity:0;pointer-events:none;white-space:nowrap;}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+#toast.success::before{content:'✓ ';}
+#toast.error::before{content:'✕ ';}
+#toast.info::before{content:'• ';}
+
+/* LOADING OVERLAY */
+#loader{position:fixed;inset:0;background:rgba(253,248,245,0.92);z-index:9998;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+#loader.show{display:flex;}
+.loader-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--pink-dark);border-radius:50%;animation:spin 0.8s linear infinite;}
+.loader-text{font-size:14px;color:var(--grey);font-weight:500;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* MODAL */
+#modal-overlay{position:fixed;inset:0;background:rgba(44,44,42,0.4);z-index:9990;display:none;align-items:center;justify-content:center;}
+#modal-overlay.show{display:flex;}
+.modal-box{background:var(--white);border-radius:var(--radius-md);padding:36px;max-width:440px;width:90%;box-shadow:var(--shadow-md);text-align:center;}
+.modal-icon{font-size:40px;margin-bottom:16px;}
+.modal-title{font-size:20px;font-weight:700;margin-bottom:8px;}
+.modal-body{font-size:14px;color:var(--grey);line-height:1.7;margin-bottom:24px;}
+.modal-actions{display:flex;gap:10px;justify-content:center;}
+
+/* SPLASH */
+#screen-splash{background:linear-gradient(135deg,#FDF8F5 0%,#FDE8EE 50%,#F4C5D0 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px;min-height:100vh;}
+#screen-splash.active{display:flex;}
+.splash-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;color:var(--charcoal);margin-bottom:8px;}
+.splash-logo span{color:var(--pink-dark);}
+.splash-illustration{width:180px;height:180px;margin:32px auto;background:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);font-size:80px;}
+.splash-title{font-size:36px;font-weight:800;color:var(--charcoal);line-height:1.2;margin-bottom:12px;}
+.splash-tagline{font-size:18px;color:var(--grey);font-weight:300;margin-bottom:48px;letter-spacing:0.5px;}
+.btn-primary{background:var(--pink-dark);color:white;border:none;padding:14px 36px;border-radius:var(--radius-sm);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;width:100%;max-width:320px;margin-bottom:12px;}
+.btn-primary:hover{background:#B5697A;transform:translateY(-1px);box-shadow:var(--shadow);}
+.btn-primary:active{transform:translateY(0);}
+.btn-secondary{background:transparent;color:var(--pink-dark);border:1.5px solid var(--pink-dark);padding:14px 36px;border-radius:var(--radius-sm);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;width:100%;max-width:320px;}
+.btn-secondary:hover{background:var(--pink-light);}
+.trust-row{display:flex;gap:24px;margin-top:40px;flex-wrap:wrap;justify-content:center;}
+.trust-badge{font-size:12px;color:var(--grey);display:flex;align-items:center;gap:6px;}
+.trust-badge::before{content:'✓';color:var(--green-dark);font-weight:700;}
+
+/* LOGIN */
+#screen-login{background:var(--bg);padding:40px 24px;}
+#screen-login.active{display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.auth-card{background:var(--white);border-radius:var(--radius-md);padding:40px;width:100%;max-width:440px;box-shadow:var(--shadow-md);position:relative;overflow:hidden;}
+.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--pink),var(--pink-dark));}
+.auth-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;color:var(--charcoal);margin-bottom:4px;}
+.auth-logo span{color:var(--pink-dark);}
+.step-indicator{display:flex;gap:6px;margin-bottom:28px;}
+.step-dot{height:4px;border-radius:2px;background:var(--border);flex:1;}
+.step-dot.active{background:var(--pink-dark);}
+.form-group{margin-bottom:18px;}
+.form-label{font-size:13px;font-weight:500;color:var(--charcoal);margin-bottom:6px;display:block;}
+.form-input{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--charcoal);background:var(--bg);transition:border-color 0.2s;}
+.form-input:focus{outline:none;border-color:var(--pink-dark);background:var(--white);}
+.form-input.error{border-color:var(--error);}
+.field-error{font-size:12px;color:var(--error);margin-top:4px;display:none;}
+.field-error.show{display:block;}
+.divider{text-align:center;color:var(--grey);font-size:13px;margin:18px 0;position:relative;}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--border);}
+.divider::before{left:0;}.divider::after{right:0;}
+.google-btn{width:100%;padding:11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;color:var(--charcoal);}
+.google-btn:hover{border-color:var(--pink-dark);background:var(--pink-light);}
+
+/* PROFILE */
+#screen-profile{background:var(--bg);padding:40px 24px;}
+#screen-profile.active{display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.setup-card{background:var(--white);border-radius:var(--radius-md);padding:40px;width:100%;max-width:520px;box-shadow:var(--shadow-md);}
+.setup-heading{font-size:22px;font-weight:700;color:var(--charcoal);margin-bottom:4px;}
+.setup-sub{font-size:14px;color:var(--grey);margin-bottom:28px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--charcoal);background:var(--bg);appearance:none;cursor:pointer;}
+.form-select:focus{outline:none;border-color:var(--pink-dark);}
+.form-textarea{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--charcoal);background:var(--bg);resize:vertical;min-height:80px;}
+.form-textarea:focus{outline:none;border-color:var(--pink-dark);}
+
+/* UPLOAD */
+#screen-upload{background:var(--bg);padding:40px 24px;}
+#screen-upload.active{display:flex;align-items:center;justify-content:center;min-height:100vh;}
+.upload-card{background:var(--white);border-radius:var(--radius-md);padding:40px;width:100%;max-width:480px;box-shadow:var(--shadow-md);text-align:center;}
+.upload-zone{border:2px dashed var(--pink);border-radius:var(--radius-md);padding:48px 24px;margin:24px 0;background:var(--pink-light);cursor:pointer;transition:all 0.2s;}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--pink-dark);background:#FDD5DF;}
+.upload-icon{font-size:40px;margin-bottom:12px;}
+.upload-text{font-size:15px;font-weight:500;color:var(--charcoal);margin-bottom:4px;}
+.upload-sub{font-size:13px;color:var(--grey);}
+.format-badges{display:flex;gap:8px;justify-content:center;margin-top:12px;}
+.format-badge{font-size:11px;padding:4px 10px;border-radius:20px;background:var(--grey-light);color:var(--grey);font-weight:500;}
+.skip-link{font-size:13px;color:var(--grey);text-decoration:underline;cursor:pointer;margin-top:8px;display:block;}
+.skip-link:hover{color:var(--pink-dark);}
+.file-preview{background:var(--grey-light);border-radius:var(--radius-sm);padding:14px 18px;display:none;align-items:center;gap:12px;margin-top:16px;}
+.file-preview.show{display:flex;}
+.file-icon{font-size:24px;}
+.file-info{flex:1;text-align:left;}
+.file-name{font-size:14px;font-weight:500;color:var(--charcoal);}
+.file-size{font-size:12px;color:var(--grey);}
+.file-check{color:var(--green-dark);font-size:20px;font-weight:700;}
+.upload-progress-bar{height:4px;background:var(--border);border-radius:2px;margin-top:10px;overflow:hidden;display:none;}
+.upload-progress-bar.show{display:block;}
+.upload-progress-fill{height:100%;background:var(--pink-dark);border-radius:2px;width:0%;transition:width 0.1s;}
+
+/* DASHBOARD */
+#screen-dashboard{background:var(--bg);}
+#screen-dashboard.active{display:block;}
+.topnav{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(44,44,42,0.06);}
+.nav-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;color:var(--charcoal);}
+.nav-logo span{color:var(--pink-dark);}
+.nav-links{display:flex;gap:4px;}
+.nav-link{padding:6px 14px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;color:var(--grey);cursor:pointer;transition:all 0.2s;border:none;background:none;}
+.nav-link:hover,.nav-link.active{color:var(--pink-dark);background:var(--pink-light);}
+.nav-avatar{width:36px;height:36px;border-radius:50%;background:var(--pink);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--white);cursor:pointer;position:relative;}
+.nav-dropdown{position:absolute;top:46px;right:0;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-md);padding:8px;min-width:160px;box-shadow:var(--shadow-md);display:none;z-index:200;}
+.nav-dropdown.show{display:block;}
+.nav-dropdown-item{padding:8px 14px;font-size:13px;color:var(--charcoal);cursor:pointer;border-radius:var(--radius-sm);}
+.nav-dropdown-item:hover{background:var(--pink-light);color:var(--pink-dark);}
+.dashboard-layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 60px);}
+.sidebar{background:var(--white);border-right:1px solid var(--border);padding:28px 20px;}
+.sidebar-heading{font-size:11px;font-weight:600;color:var(--grey);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:16px;}
+.progress-steps{display:flex;flex-direction:column;gap:4px;}
+.progress-step{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;}
+.progress-step.done{background:#EFF7EE;}
+.progress-step.current{background:var(--pink-light);}
+.progress-step:hover{opacity:0.85;}
+.step-circle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.step-circle.done{background:var(--green-dark);color:white;}
+.step-circle.current{background:var(--pink-dark);color:white;}
+.step-circle.pending{background:var(--grey-light);color:var(--grey);}
+.step-label{font-size:13px;font-weight:500;}
+.step-label.done{color:var(--green-dark);}
+.step-label.current{color:var(--pink-dark);}
+.step-label.pending{color:var(--grey);}
+.dashboard-main{padding:32px;overflow-y:auto;}
+.page-title{font-size:24px;font-weight:700;color:var(--charcoal);margin-bottom:4px;}
+.page-sub{font-size:14px;color:var(--grey);margin-bottom:28px;}
+.metrics-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+.metric-card{background:var(--white);border-radius:var(--radius-md);padding:20px 24px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.metric-label{font-size:12px;color:var(--grey);font-weight:500;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;}
+.metric-value{font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:700;color:var(--charcoal);}
+.metric-unit{font-size:14px;color:var(--grey);font-weight:400;}
+.section-card{background:var(--white);border-radius:var(--radius-md);padding:24px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:24px;}
+.section-title{font-size:16px;font-weight:700;color:var(--charcoal);margin-bottom:18px;}
+.skill-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.skill-name{font-size:13px;color:var(--grey);width:140px;flex-shrink:0;}
+.skill-bar-wrap{flex:1;background:var(--grey-light);border-radius:4px;height:8px;overflow:hidden;}
+.skill-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--pink),var(--pink-dark));transition:width 1s ease;}
+.skill-mapped{font-size:12px;color:var(--pink-dark);font-weight:500;width:160px;text-align:right;}
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.action-card{background:var(--white);border-radius:var(--radius-md);padding:20px;border:1px solid var(--border);cursor:pointer;transition:all 0.2s;text-align:center;}
+.action-card:hover{border-color:var(--pink-dark);box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.action-card:active{transform:translateY(0);}
+.action-icon{font-size:28px;margin-bottom:10px;}
+.action-title{font-size:13px;font-weight:600;color:var(--charcoal);margin-bottom:4px;}
+.action-desc{font-size:11px;color:var(--grey);}
+
+/* INNER NAV */
+.inner-nav{background:var(--white);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.inner-nav-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;color:var(--charcoal);cursor:pointer;}
+.inner-nav-logo span{color:var(--pink-dark);}
+.inner-nav-links{display:flex;gap:4px;}
+.inner-nav-link{padding:6px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;color:var(--grey);cursor:pointer;border:none;background:none;transition:all 0.2s;}
+.inner-nav-link:hover,.inner-nav-link.active{color:var(--pink-dark);background:var(--pink-light);}
+
+/* GAP EXPLANATION */
+#screen-explanation{background:var(--bg);}
+#screen-explanation.active{display:block;}
+.feature-layout{padding:32px;max-width:1100px;margin:0 auto;}
+.feature-heading{font-size:26px;font-weight:800;color:var(--charcoal);margin-bottom:4px;}
+.feature-sub{font-size:14px;color:var(--grey);margin-bottom:32px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+.form-card{background:var(--white);border-radius:var(--radius-md);padding:28px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.tone-btns{display:flex;gap:8px;}
+.tone-btn{flex:1;padding:9px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;font-weight:500;}
+.tone-btn.selected,.tone-btn:hover{border-color:var(--pink-dark);background:var(--pink-light);color:var(--pink-dark);}
+.generate-btn{width:100%;padding:13px;background:var(--pink-dark);color:white;border:none;border-radius:var(--radius-sm);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;transition:all 0.2s;}
+.generate-btn:hover{background:#B5697A;}
+.generate-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.preview-card{background:var(--white);border-radius:var(--radius-md);padding:28px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.preview-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.preview-title{font-size:14px;font-weight:600;color:var(--charcoal);}
+.copy-btn{font-size:12px;color:var(--grey);cursor:pointer;padding:4px 10px;border:1px solid var(--border);border-radius:20px;background:none;transition:all 0.2s;}
+.copy-btn:hover{color:var(--pink-dark);border-color:var(--pink-dark);}
+.preview-text{font-size:14px;line-height:1.8;color:var(--charcoal);background:var(--bg);border-radius:var(--radius-sm);padding:16px;border-left:3px solid var(--pink);min-height:120px;}
+.preview-actions{display:flex;gap:10px;margin-top:16px;}
+.btn-outline{flex:1;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;color:var(--charcoal);}
+.btn-outline:hover{border-color:var(--pink-dark);color:var(--pink-dark);}
+.btn-filled{flex:1;padding:10px;background:var(--pink-dark);color:white;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.btn-filled:hover{background:#B5697A;}
+.char-count{font-size:11px;color:var(--grey);text-align:right;margin-top:4px;}
+
+/* SKILLS */
+#screen-skills{background:var(--bg);}
+#screen-skills.active{display:block;}
+.skills-layout{padding:32px;max-width:1100px;margin:0 auto;}
+.mapping-card{background:var(--white);border-radius:var(--radius-md);padding:28px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:24px;}
+.mapping-grid{display:grid;grid-template-columns:1fr 40px 1fr;gap:0;align-items:center;}
+.mapping-col-head{font-size:12px;font-weight:600;color:var(--grey);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:16px;}
+.tag-row{display:flex;align-items:center;margin-bottom:12px;}
+.tag-input{display:inline-block;padding:7px 14px;background:var(--pink-light);border-radius:20px;font-size:13px;color:var(--pink-dark);font-weight:500;}
+.tag-output{display:inline-block;padding:7px 14px;background:#EFF7EE;border-radius:20px;font-size:13px;color:var(--green-dark);font-weight:500;}
+.arrow-col{display:flex;flex-direction:column;align-items:center;gap:12px;padding-top:32px;}
+.arrow{color:var(--pink-dark);font-size:18px;font-weight:700;}
+.job-roles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.job-role-card{background:var(--white);border-radius:var(--radius-md);padding:20px;border:1px solid var(--border);transition:all 0.2s;}
+.job-role-card:hover{border-color:var(--pink);box-shadow:var(--shadow);}
+.job-title-text{font-size:15px;font-weight:600;color:var(--charcoal);margin-bottom:10px;}
+.match-label{font-size:12px;color:var(--grey);margin-bottom:6px;}
+.match-bar-wrap{background:var(--grey-light);border-radius:4px;height:6px;margin-bottom:12px;overflow:hidden;}
+.match-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--green-dark));}
+.view-jobs-btn{width:100%;padding:8px;border:1.5px solid var(--pink-dark);color:var(--pink-dark);border-radius:var(--radius-sm);background:none;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.view-jobs-btn:hover{background:var(--pink-light);}
+.add-skill-row{display:flex;gap:8px;margin-bottom:16px;}
+.add-skill-input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;}
+.add-skill-input:focus{outline:none;border-color:var(--pink-dark);}
+.add-skill-btn{padding:8px 14px;background:var(--pink-light);color:var(--pink-dark);border:1.5px solid var(--pink);border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;}
+.add-skill-btn:hover{background:var(--pink);}
+
+/* ROADMAP */
+#screen-roadmap{background:var(--bg);}
+#screen-roadmap.active{display:block;}
+.roadmap-layout{padding:32px;max-width:1100px;margin:0 auto;}
+.roadmap-controls{background:var(--white);border-radius:var(--radius-md);padding:24px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:24px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center;}
+.slider-wrap{display:flex;align-items:center;gap:12px;}
+.slider-label{font-size:13px;color:var(--grey);font-weight:500;white-space:nowrap;}
+.slider{flex:1;accent-color:var(--pink-dark);}
+.slider-val{font-size:14px;font-weight:600;color:var(--pink-dark);min-width:60px;}
+.overall-progress{background:var(--white);border-radius:var(--radius-md);padding:20px 24px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:24px;}
+.progress-label{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;}
+.progress-bar-outer{background:var(--grey-light);border-radius:8px;height:10px;overflow:hidden;}
+.progress-bar-inner{height:100%;background:linear-gradient(90deg,var(--pink),var(--pink-dark));border-radius:8px;transition:width 0.5s ease;}
+.weeks-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+.week-card{background:var(--white);border-radius:var(--radius-md);padding:18px;border:1px solid var(--border);box-shadow:var(--shadow);transition:all 0.2s;}
+.week-card:hover{border-color:var(--pink);}
+.week-card.completed{border-color:var(--green-dark);background:#F6FBF4;}
+.week-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.week-num{font-size:11px;font-weight:600;color:var(--grey);text-transform:uppercase;letter-spacing:0.5px;}
+.week-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all 0.2s;}
+.week-check:hover{border-color:var(--green-dark);}
+.week-check.done{background:var(--green-dark);border-color:var(--green-dark);color:white;}
+.week-topic{font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:8px;line-height:1.3;}
+.week-platform{font-size:12px;color:var(--grey);margin-bottom:6px;}
+.week-hours{font-size:12px;color:var(--pink-dark);font-weight:500;}
+.roadmap-actions{display:flex;gap:12px;}
+
+/* RESUME BUILDER */
+#screen-resume{background:var(--bg);}
+#screen-resume.active{display:block;}
+.resume-layout{display:grid;grid-template-columns:1fr 1fr;height:calc(100vh - 60px);}
+.resume-editor{padding:28px;overflow-y:auto;border-right:1px solid var(--border);}
+.resume-preview-pane{background:var(--grey-light);padding:28px;overflow-y:auto;}
+.template-toggles{display:flex;gap:8px;margin-bottom:20px;}
+.template-btn{padding:7px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--white);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.template-btn.active{border-color:var(--pink-dark);background:var(--pink-light);color:var(--pink-dark);}
+.resume-section{margin-bottom:22px;}
+.resume-section-title{font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.ai-tag{font-size:10px;background:var(--pink-light);color:var(--pink-dark);padding:2px 8px;border-radius:20px;margin-left:8px;font-weight:600;}
+.ai-field{border:1.5px solid var(--pink);background:#FFF5F8;border-radius:var(--radius-sm);padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:13px;width:100%;resize:none;min-height:70px;color:var(--charcoal);}
+.resume-preview-card{background:var(--white);border-radius:var(--radius-md);padding:32px;box-shadow:var(--shadow-md);min-height:500px;}
+.resume-name-preview{font-size:22px;font-weight:700;color:var(--charcoal);}
+.resume-role-preview{font-size:14px;color:var(--pink-dark);font-weight:500;margin-bottom:16px;}
+.resume-divider{height:1px;background:var(--border);margin:14px 0;}
+.resume-section-head{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--charcoal);margin-bottom:8px;}
+.resume-body-text{font-size:13px;line-height:1.7;color:#444;}
+.resume-gap-highlight{background:var(--pink-light);border-left:3px solid var(--pink-dark);padding:10px 14px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:13px;line-height:1.7;color:var(--charcoal);}
+.bottom-bar{display:flex;gap:10px;padding:16px 28px;background:var(--white);border-top:1px solid var(--border);}
+.unsaved-dot{width:8px;height:8px;background:var(--error);border-radius:50%;display:none;margin-left:6px;}
+.unsaved-dot.show{display:inline-block;}
+
+/* CHATBOT */
+#screen-chatbot{background:var(--bg);}
+#screen-chatbot.active{display:flex;flex-direction:column;height:100vh;}
+.chat-header{background:var(--white);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:14px;}
+.bot-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--pink),var(--pink-dark));display:flex;align-items:center;justify-content:center;font-size:20px;}
+.chat-title{font-size:16px;font-weight:700;color:var(--charcoal);}
+.chat-mode-badge{font-size:11px;background:var(--pink-light);color:var(--pink-dark);padding:3px 10px;border-radius:20px;font-weight:600;}
+.online-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;margin-right:4px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.chat-messages{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px;background:var(--bg);}
+.bubble{max-width:70%;padding:12px 16px;border-radius:var(--radius-lg);font-size:14px;line-height:1.6;}
+.bubble.bot{background:var(--white);border:1px solid var(--border);border-bottom-left-radius:4px;align-self:flex-start;}
+.bubble.user{background:#E8F0FD;border-bottom-right-radius:4px;align-self:flex-end;}
+.bubble.typing{background:var(--white);border:1px solid var(--border);border-bottom-left-radius:4px;align-self:flex-start;padding:16px;}
+.typing-dots{display:flex;gap:4px;}
+.typing-dot{width:8px;height:8px;background:var(--grey);border-radius:50%;animation:typingBounce 1.2s infinite;}
+.typing-dot:nth-child(2){animation-delay:0.2s;}
+.typing-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
+.feedback-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 18px;max-width:70%;align-self:flex-start;}
+.feedback-title{font-size:12px;font-weight:600;color:var(--grey);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;}
+.feedback-pills{display:flex;gap:8px;flex-wrap:wrap;}
+.pill{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+.pill.green{background:#EFF7EE;color:var(--green-dark);}
+.pill.amber{background:#FEF3E2;color:#B8720A;}
+.pill.red{background:#FDECEA;color:var(--error);}
+.chat-input-bar{padding:16px 24px;background:var(--white);border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;}
+.chat-input{flex:1;padding:11px 16px;border:1.5px solid var(--border);border-radius:24px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--charcoal);background:var(--bg);}
+.chat-input:focus{outline:none;border-color:var(--pink-dark);}
+.send-btn{background:var(--pink-dark);color:white;border:none;border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
+.send-btn:hover{background:#B5697A;}
+.send-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.interview-score{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;max-width:70%;align-self:flex-start;margin-top:8px;}
+.score-title{font-size:14px;font-weight:700;margin-bottom:12px;}
+.score-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.score-label{font-size:13px;color:var(--grey);width:100px;}
+.score-bar-wrap{flex:1;background:var(--grey-light);border-radius:4px;height:6px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:4px;}
+.score-val{font-size:13px;font-weight:600;color:var(--charcoal);width:30px;text-align:right;}
+
+/* RESOURCES */
+#screen-resources{background:var(--bg);}
+#screen-resources.active{display:block;}
+.resources-layout{padding:32px;max-width:1100px;margin:0 auto;}
+.filter-bar{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+.filter-chip{padding:8px 18px;border:1.5px solid var(--border);border-radius:24px;font-size:13px;font-weight:500;cursor:pointer;background:var(--white);color:var(--grey);transition:all 0.2s;}
+.filter-chip.active,.filter-chip:hover{border-color:var(--pink-dark);background:var(--pink-light);color:var(--pink-dark);}
+.resources-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.resource-card{background:var(--white);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);cursor:pointer;transition:all 0.2s;}
+.resource-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
+.resource-card.bookmarked{border-color:var(--pink-dark);}
+.resource-thumb{height:120px;display:flex;align-items:center;justify-content:center;font-size:40px;}
+.resource-body{padding:16px;}
+.resource-platform{font-size:11px;font-weight:600;color:var(--pink-dark);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.resource-title{font-size:14px;font-weight:600;color:var(--charcoal);margin-bottom:8px;line-height:1.4;}
+.resource-footer{display:flex;justify-content:space-between;align-items:center;}
+.resource-dur{font-size:12px;color:var(--grey);}
+.bookmark{font-size:16px;cursor:pointer;color:var(--grey);transition:all 0.2s;}
+.bookmark:hover,.bookmark.saved{color:var(--pink-dark);}
+
+/* SETTINGS */
+#screen-settings{background:var(--bg);}
+#screen-settings.active{display:block;}
+.settings-layout{padding:32px;max-width:700px;margin:0 auto;}
+.settings-section{background:var(--white);border-radius:var(--radius-md);padding:28px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:20px;}
+.settings-section-title{font-size:15px;font-weight:700;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.toggle-label{font-size:14px;color:var(--charcoal);}
+.toggle-desc{font-size:12px;color:var(--grey);}
+.toggle{width:44px;height:24px;background:var(--border);border-radius:12px;cursor:pointer;position:relative;transition:background 0.2s;}
+.toggle.on{background:var(--pink-dark);}
+.toggle::after{content:'';width:18px;height:18px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:left 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.15);}
+.toggle.on::after{left:23px;}
+.avatar-upload{width:80px;height:80px;border-radius:50%;background:var(--pink);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:white;cursor:pointer;position:relative;margin-bottom:16px;}
+.avatar-upload:hover::after{content:'📷';position:absolute;inset:0;background:rgba(0,0,0,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.danger-btn{padding:10px 20px;background:none;border:1.5px solid var(--error);color:var(--error);border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.danger-btn:hover{background:#FDF0EC;}
+
+@media(max-width:768px){
+  .dashboard-layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .metrics-row{grid-template-columns:1fr;}
+  .quick-actions{grid-template-columns:repeat(2,1fr);}
+  .two-col{grid-template-columns:1fr;}
+  .weeks-grid{grid-template-columns:repeat(2,1fr);}
+  .resources-grid{grid-template-columns:1fr;}
+  .resume-layout{grid-template-columns:1fr;}
+  .resume-preview-pane{display:none;}
+  .job-roles-grid{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .nav-links{display:none;}
+  .roadmap-controls{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-spinner"></div>
+  <div class="loader-text" id="loader-text">Processing...</div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon" id="modal-icon">✅</div>
+    <div class="modal-title" id="modal-title">Success</div>
+    <div class="modal-body" id="modal-body">Action completed.</div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<!-- SCREEN 1: SPLASH -->
+<div id="screen-splash" class="screen active">
+  <div class="splash-logo">CareerGap <span>AI</span></div>
+  <div class="splash-illustration">👩‍💼</div>
+  <h1 class="splash-title">Resume &amp; Skill Rebuilder<br/>for Women Returning to Work</h1>
+  <p class="splash-tagline">Your pause. Your power.</p>
+  <button class="btn-primary" onclick="goTo('screen-login')">Get Started →</button>
+  <button class="btn-secondary" onclick="handleLogin()">Login</button>
+  <div class="trust-row">
+    <span class="trust-badge">AI Powered</span>
+    <span class="trust-badge">Free to Use</span>
+    <span class="trust-badge">Built for Women</span>
+  </div>
+</div>
+
+<!-- SCREEN 2: LOGIN -->
+<div id="screen-login" class="screen">
+  <div class="auth-card">
+    <div class="auth-logo">CareerGap <span>AI</span></div>
+    <div style="font-size:13px;color:var(--grey);margin-bottom:20px;">Create your account to begin your comeback journey</div>
+    <div class="step-indicator">
+      <div class="step-dot active"></div>
+      <div class="step-dot"></div>
+      <div class="step-dot"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input class="form-input" id="inp-name" type="text" placeholder="Priya Sharma" oninput="clearErr('err-name','inp-name')"/>
+      <div class="field-error" id="err-name">Please enter your full name</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input class="form-input" id="inp-email" type="email" placeholder="priya@email.com" oninput="clearErr('err-email','inp-email')"/>
+      <div class="field-error" id="err-email">Please enter a valid email</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" id="inp-pass" type="password" placeholder="At least 8 characters" oninput="clearErr('err-pass','inp-pass')"/>
+      <div class="field-error" id="err-pass">Password must be at least 8 characters</div>
+    </div>
+    <button class="btn-primary" onclick="validateSignup()" style="margin-top:8px;">Continue →</button>
+    <div class="divider">or</div>
+    <button class="google-btn" onclick="googleSignIn()">
+      <span style="font-size:16px;font-weight:700;color:#4285F4;">G</span> Continue with Google
+    </button>
+    <p style="text-align:center;font-size:13px;color:var(--grey);margin-top:16px;">Already have an account? <span style="color:var(--pink-dark);cursor:pointer;font-weight:500;" onclick="handleLogin()">Sign in</span></p>
+  </div>
+</div>
+
+<!-- SCREEN 3: PROFILE SETUP -->
+<div id="screen-profile" class="screen">
+  <div class="setup-card">
+    <div class="step-indicator" style="margin-bottom:20px;">
+      <div class="step-dot active"></div><div class="step-dot active"></div><div class="step-dot"></div>
+    </div>
+    <h2 class="setup-heading">Tell us about yourself</h2>
+    <p class="setup-sub">This helps us personalise your career comeback plan</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Last Job Title</label>
+        <input class="form-input" id="inp-jobtitle" placeholder="e.g. Marketing Manager"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Industry</label>
+        <input class="form-input" id="inp-industry" placeholder="e.g. Healthcare"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Years of Experience</label>
+        <input class="form-input" id="inp-exp" type="number" placeholder="e.g. 6"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Location</label>
+        <input class="form-input" id="inp-location" placeholder="e.g. Chennai, India"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Reason for Career Break</label>
+      <select class="form-select" id="inp-reason">
+        <option value="">Select reason...</option>
+        <option>Caregiving (child or elder)</option>
+        <option>Health reasons</option>
+        <option>Family relocation</option>
+        <option>Personal choice</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Gap Start Date</label>
+        <input class="form-input" id="inp-gapstart" type="month"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Gap End Date</label>
+        <input class="form-input" id="inp-gapend" type="month"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">What were you doing during the gap?</label>
+      <textarea class="form-textarea" id="inp-gap-activities" placeholder="e.g. Primary caregiver for two children, managed household finances, volunteered at local NGO..."></textarea>
+      <div class="char-count" id="gap-char-count">0 / 500</div>
+    </div>
+    <button class="btn-primary" onclick="saveProfile()">Next Step →</button>
+  </div>
+</div>
+
+<!-- SCREEN 4: RESUME UPLOAD -->
+<div id="screen-upload" class="screen">
+  <div class="upload-card">
+    <div class="step-indicator" style="margin-bottom:20px;">
+      <div class="step-dot active"></div><div class="step-dot active"></div><div class="step-dot active"></div>
+    </div>
+    <h2 style="font-size:22px;font-weight:700;margin-bottom:4px;">Upload your resume</h2>
+    <p style="font-size:14px;color:var(--grey);">We'll use this to rebuild your career story</p>
+    <div class="upload-zone" id="upload-zone" onclick="triggerUpload()" ondragover="dragOver(event)" ondragleave="dragLeave()" ondrop="dropFile(event)">
+      <div class="upload-icon">📄</div>
+      <div class="upload-text">Drop your resume here or click to browse</div>
+      <div class="upload-sub">Our AI will analyse and rebuild it for you</div>
+      <div class="format-badges">
+        <span class="format-badge">PDF</span>
+        <span class="format-badge">DOC</span>
+        <span class="format-badge">DOCX</span>
+      </div>
+    </div>
+    <div class="upload-progress-bar" id="upload-prog-bar"><div class="upload-progress-fill" id="upload-prog-fill"></div></div>
+    <div class="file-preview" id="file-preview">
+      <span class="file-icon">📄</span>
+      <div class="file-info">
+        <div class="file-name" id="file-name-display">resume.pdf</div>
+        <div class="file-size" id="file-size-display">248 KB • Uploaded successfully</div>
+      </div>
+      <span class="file-check">✓</span>
+    </div>
+    <input type="file" id="file-input" style="display:none" accept=".pdf,.doc,.docx" onchange="handleFileSelect(event)"/>
+    <button class="btn-primary" id="continue-btn" onclick="goTo('screen-dashboard')" style="margin-top:16px;opacity:0.5;" disabled>Continue to Dashboard →</button>
+    <span class="skip-link" onclick="skipUpload()">Skip for now</span>
+  </div>
+</div>
+
+<!-- SCREEN 5: DASHBOARD -->
+<div id="screen-dashboard" class="screen">
+  <nav class="topnav">
+    <div class="nav-logo">CareerGap <span>AI</span></div>
+    <div class="nav-links">
+      <button class="nav-link active" onclick="goTo('screen-dashboard');setActive(this)">Dashboard</button>
+      <button class="nav-link" onclick="goTo('screen-resume');setActive(this)">My Resume</button>
+      <button class="nav-link" onclick="goTo('screen-roadmap');setActive(this)">Roadmap</button>
+      <button class="nav-link" onclick="goTo('screen-resources');setActive(this)">Resources</button>
+    </div>
+    <div class="nav-avatar" id="nav-avatar" onclick="toggleDropdown()">PS
+      <div class="nav-dropdown" id="nav-dropdown">
+        <div class="nav-dropdown-item" onclick="goTo('screen-settings')">⚙️ Settings</div>
+        <div class="nav-dropdown-item" onclick="goTo('screen-skills')">🧠 My Skills</div>
+        <div class="nav-dropdown-item" onclick="showModal('📊','Download Report','Your progress report is being generated and will be downloaded shortly.','<button class=btn-primary onclick=\"closeModal();toast(\'Report downloaded!\',\'success\')\" style=\"max-width:160px;\">Download</button><button class=btn-outline onclick=closeModal() style=\"flex:1;\">Cancel</button>')">📊 Progress Report</div>
+        <div class="nav-dropdown-item" onclick="confirmLogout()">🚪 Log Out</div>
+      </div>
+    </div>
+  </nav>
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-heading">Your Progress</div>
+      <div class="progress-steps">
+        <div class="progress-step done" onclick="toast('Profile already complete!','success')">
+          <div class="step-circle done">✓</div><span class="step-label done">Profile Complete</span>
+        </div>
+        <div class="progress-step done" onclick="toast('Resume uploaded and analysed!','success')">
+          <div class="step-circle done">✓</div><span class="step-label done">Resume Uploaded</span>
+        </div>
+        <div class="progress-step current" onclick="goTo('screen-skills')">
+          <div class="step-circle current">3</div><span class="step-label current">Skills Mapped</span>
+        </div>
+        <div class="progress-step" onclick="goTo('screen-roadmap')">
+          <div class="step-circle pending">4</div><span class="step-label pending">Roadmap Generated</span>
+        </div>
+        <div class="progress-step" onclick="goTo('screen-resume')">
+          <div class="step-circle pending">5</div><span class="step-label pending">Resume Rebuilt</span>
+        </div>
+      </div>
+    </aside>
+    <main class="dashboard-main">
+      <h1 class="page-title">Welcome back, Priya 👋</h1>
+      <p class="page-sub">You're making great progress on your career comeback journey</p>
+      <div class="metrics-row">
+        <div class="metric-card" style="cursor:pointer;" onclick="showModal('📅','Career Gap Duration','Your career break spans 2 years from January 2022 to December 2023. This is within the normal range — our AI has found 12 transferable skills from this period.','<button class=btn-primary onclick=closeModal() style=\"max-width:160px;\">Got it</button>')">
+          <div class="metric-label">Career Gap Duration</div>
+          <div class="metric-value">2 <span class="metric-unit">years</span></div>
+        </div>
+        <div class="metric-card" style="cursor:pointer;" onclick="goTo('screen-skills')">
+          <div class="metric-label">Transferable Skills Found</div>
+          <div class="metric-value" id="skill-count-metric">12 <span class="metric-unit">skills</span></div>
+        </div>
+        <div class="metric-card" style="cursor:pointer;" onclick="goTo('screen-roadmap')">
+          <div class="metric-label">Roadmap Progress</div>
+          <div class="metric-value" id="roadmap-metric">37 <span class="metric-unit">%</span></div>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-title">Your Skills At a Glance</div>
+        <div class="skill-bar-row">
+          <span class="skill-name">Caregiving</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="width:90%"></div></div>
+          <span class="skill-mapped">Team Coordination</span>
+        </div>
+        <div class="skill-bar-row">
+          <span class="skill-name">Budgeting</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="width:78%"></div></div>
+          <span class="skill-mapped">Financial Planning</span>
+        </div>
+        <div class="skill-bar-row">
+          <span class="skill-name">Household Mgmt</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="width:85%"></div></div>
+          <span class="skill-mapped">Project Management</span>
+        </div>
+        <div class="skill-bar-row">
+          <span class="skill-name">Volunteering</span>
+          <div class="skill-bar-wrap"><div class="skill-bar" style="width:65%"></div></div>
+          <span class="skill-mapped">Leadership</span>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-title">Quick Actions</div>
+        <div class="quick-actions">
+          <div class="action-card" onclick="goTo('screen-explanation')">
+            <div class="action-icon">✍️</div>
+            <div class="action-title">Generate Gap Explanation</div>
+            <div class="action-desc">AI-powered professional narrative</div>
+          </div>
+          <div class="action-card" onclick="goTo('screen-roadmap')">
+            <div class="action-icon">🗺️</div>
+            <div class="action-title">View Upskilling Roadmap</div>
+            <div class="action-desc">Your 2-month comeback plan</div>
+          </div>
+          <div class="action-card" onclick="goTo('screen-resume')">
+            <div class="action-icon">📄</div>
+            <div class="action-title">Download Resume</div>
+            <div class="action-desc">Rebuilt and ready to send</div>
+          </div>
+          <div class="action-card" onclick="goTo('screen-chatbot')">
+            <div class="action-icon">🎙️</div>
+            <div class="action-title">Practice Interview</div>
+            <div class="action-desc">HR-style mock session</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- SCREEN 6: GAP EXPLANATION -->
+<div id="screen-explanation" class="screen">
+  <nav class="inner-nav">
+    <div class="inner-nav-logo" onclick="goTo('screen-dashboard')">CareerGap <span>AI</span></div>
+    <div class="inner-nav-links">
+      <button class="inner-nav-link" onclick="goTo('screen-dashboard')">Dashboard</button>
+      <button class="inner-nav-link active">Gap Explanation</button>
+      <button class="inner-nav-link" onclick="goTo('screen-skills')">Skills</button>
+      <button class="inner-nav-link" onclick="goTo('screen-roadmap')">Roadmap</button>
+    </div>
+  </nav>
+  <div class="feature-layout">
+    <h2 class="feature-heading">Turn your break into your story</h2>
+    <p class="feature-sub">Let AI craft a professional, recruiter-friendly explanation for your career gap</p>
+    <div class="two-col">
+      <div class="form-card">
+        <div class="form-group">
+          <label class="form-label">Gap Duration</label>
+          <input class="form-input" id="exp-duration" value="2 years (2022 – 2024)"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Main Activities During Gap</label>
+          <textarea class="form-textarea" id="exp-activities" style="min-height:90px;">Primary caregiver for two young children, managed household finances, volunteered at local women's NGO, completed online marketing courses</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Job Role</label>
+          <input class="form-input" id="exp-role" placeholder="e.g. Marketing Manager" value="Marketing Manager"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tone</label>
+          <div class="tone-btns">
+            <button class="tone-btn" onclick="selectTone(this,'Formal')">Formal</button>
+            <button class="tone-btn selected" onclick="selectTone(this,'Warm')">Warm</button>
+            <button class="tone-btn" onclick="selectTone(this,'Confident')">Confident</button>
+          </div>
+        </div>
+        <button class="generate-btn" id="gen-btn" onclick="generateExplanation()">✨ Generate Explanation</button>
+      </div>
+      <div class="preview-card">
+        <div class="preview-header">
+          <span class="preview-title">AI Generated Explanation</span>
+          <button class="copy-btn" id="copy-exp-btn" onclick="copyExplanation()">Copy ↗</button>
+        </div>
+        <div class="preview-text" id="preview-text" contenteditable="true" oninput="markUnsaved('exp-saved')">Between 2022 and 2024, I took an intentional career break to serve as the primary caregiver for my two young children — a role that deepened my skills in time management, crisis response, and empathetic communication. During this period, I also managed our household budget, strengthened my financial planning abilities, and volunteered with a local women's NGO where I coordinated community outreach programmes. I remained engaged with my field by completing online courses in digital marketing and analytics. I am now fully committed to returning to work and bringing this enriched perspective to a dynamic marketing team.</div>
+        <div style="font-size:11px;color:var(--grey);margin-top:6px;">✏️ You can edit this text directly</div>
+        <div class="preview-actions">
+          <button class="btn-outline" onclick="regenerateExplanation()">↺ Regenerate</button>
+          <button class="btn-filled" id="save-exp-btn" onclick="saveExplanation()">Save to Resume →</button>
+        </div>
+        <div style="font-size:12px;color:var(--green-dark);margin-top:8px;display:none;" id="exp-saved">✓ Saved to your resume</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 7: SKILLS MAPPING -->
+<div id="screen-skills" class="screen">
+  <nav class="inner-nav">
+    <div class="inner-nav-logo" onclick="goTo('screen-dashboard')">CareerGap <span>AI</span></div>
+    <div class="inner-nav-links">
+      <button class="inner-nav-link" onclick="goTo('screen-dashboard')">Dashboard</button>
+      <button class="inner-nav-link" onclick="goTo('screen-explanation')">Gap Explanation</button>
+      <button class="inner-nav-link active">Skills Mapping</button>
+      <button class="inner-nav-link" onclick="goTo('screen-roadmap')">Roadmap</button>
+    </div>
+  </nav>
+  <div class="skills-layout">
+    <h2 class="feature-heading">Skills you built without knowing it</h2>
+    <p class="feature-sub">Your life experience translates directly to workplace competencies</p>
+    <div class="mapping-card">
+      <div style="margin-bottom:16px;">
+        <label class="form-label">Add a new gap activity</label>
+        <div class="add-skill-row">
+          <input class="add-skill-input" id="new-skill-input" placeholder="e.g. Managing volunteers, teaching children..." onkeydown="if(event.key==='Enter')addSkill()"/>
+          <button class="add-skill-btn" onclick="addSkill()">+ Add &amp; Map</button>
+        </div>
+      </div>
+      <div class="mapping-grid">
+        <div>
+          <div class="mapping-col-head">Your Gap Activities</div>
+          <div id="skills-input-col">
+            <div class="tag-row"><span class="tag-input">Primary Caregiving</span></div>
+            <div class="tag-row"><span class="tag-input">Household Budgeting</span></div>
+            <div class="tag-row"><span class="tag-input">Household Management</span></div>
+            <div class="tag-row"><span class="tag-input">NGO Volunteering</span></div>
+            <div class="tag-row"><span class="tag-input">Online Learning</span></div>
+          </div>
+        </div>
+        <div class="arrow-col" id="skills-arrow-col">
+          <span class="arrow">→</span><span class="arrow">→</span>
+          <span class="arrow">→</span><span class="arrow">→</span><span class="arrow">→</span>
+        </div>
+        <div>
+          <div class="mapping-col-head">Professional Competencies</div>
+          <div id="skills-output-col">
+            <div class="tag-row"><span class="tag-output">Team Coordination &amp; Crisis Management</span></div>
+            <div class="tag-row"><span class="tag-output">Financial Planning &amp; Analysis</span></div>
+            <div class="tag-row"><span class="tag-output">Project Management &amp; Scheduling</span></div>
+            <div class="tag-row"><span class="tag-output">Leadership &amp; Community Outreach</span></div>
+            <div class="tag-row"><span class="tag-output">Self-directed Learning &amp; Adaptability</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title" style="margin-bottom:16px;">Recommended Job Roles</div>
+    <div class="job-roles-grid">
+      <div class="job-role-card">
+        <div class="job-title-text">Marketing Manager</div>
+        <div class="match-label">Match Score — 88%</div>
+        <div class="match-bar-wrap"><div class="match-bar" style="width:88%"></div></div>
+        <button class="view-jobs-btn" onclick="openJobSearch('Marketing Manager')">View Jobs →</button>
+      </div>
+      <div class="job-role-card">
+        <div class="job-title-text">Operations Coordinator</div>
+        <div class="match-label">Match Score — 74%</div>
+        <div class="match-bar-wrap"><div class="match-bar" style="width:74%"></div></div>
+        <button class="view-jobs-btn" onclick="openJobSearch('Operations Coordinator')">View Jobs →</button>
+      </div>
+      <div class="job-role-card">
+        <div class="job-title-text">HR Business Partner</div>
+        <div class="match-label">Match Score — 68%</div>
+        <div class="match-bar-wrap"><div class="match-bar" style="width:68%"></div></div>
+        <button class="view-jobs-btn" onclick="openJobSearch('HR Business Partner')">View Jobs →</button>
+      </div>
+    </div>
+    <div style="margin-top:20px;">
+      <button class="btn-primary" style="max-width:240px;" onclick="saveSkillsToProfile()">Save Skills to Profile ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 8: ROADMAP -->
+<div id="screen-roadmap" class="screen">
+  <nav class="inner-nav">
+    <div class="inner-nav-logo" onclick="goTo('screen-dashboard')">CareerGap <span>AI</span></div>
+    <div class="inner-nav-links">
+      <button class="inner-nav-link" onclick="goTo('screen-dashboard')">Dashboard</button>
+      <button class="inner-nav-link active">Roadmap</button>
+      <button class="inner-nav-link" onclick="goTo('screen-resources')">Resources</button>
+    </div>
+  </nav>
+  <div class="roadmap-layout">
+    <h2 class="feature-heading">Your 2-month comeback plan</h2>
+    <p class="feature-sub">A personalised week-by-week upskilling roadmap tailored to your goals</p>
+    <div class="roadmap-controls">
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Daily Time Availability</label>
+        <div class="slider-wrap">
+          <span class="slider-label">30 min</span>
+          <input type="range" class="slider" min="30" max="180" value="60" step="30" oninput="updateSlider(this.value)"/>
+          <span class="slider-val" id="slider-val">60 min/day</span>
+        </div>
+      </div>
+      <div class="form-group" style="margin:0;">
+        <label class="form-label">Target Industry</label>
+        <select class="form-select" id="industry-select" onchange="updateRoadmapIndustry(this.value)">
+          <option>Marketing &amp; Communications</option>
+          <option>Human Resources</option>
+          <option>Operations Management</option>
+          <option>Finance</option>
+          <option>Technology</option>
+        </select>
+      </div>
+    </div>
+    <div class="overall-progress">
+      <div class="progress-label">
+        <span style="font-weight:600;font-size:14px;">Overall Progress</span>
+        <span style="color:var(--pink-dark);font-weight:600;" id="roadmap-progress-label">3 of 8 weeks complete</span>
+      </div>
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="roadmap-progress-bar" style="width:37.5%"></div></div>
+    </div>
+    <div class="weeks-grid" id="weeks-grid">
+      <div class="week-card completed" data-week="1">
+        <div class="week-header"><span class="week-num">Week 1</span><div class="week-check done" onclick="toggleWeek(this,1)">✓</div></div>
+        <div class="week-topic">Resume &amp; LinkedIn Refresh</div>
+        <div class="week-platform">📘 LinkedIn Learning</div>
+        <div class="week-hours">4 hrs total</div>
+      </div>
+      <div class="week-card completed" data-week="2">
+        <div class="week-header"><span class="week-num">Week 2</span><div class="week-check done" onclick="toggleWeek(this,2)">✓</div></div>
+        <div class="week-topic">Digital Marketing Fundamentals</div>
+        <div class="week-platform">🎓 Coursera</div>
+        <div class="week-hours">5 hrs total</div>
+      </div>
+      <div class="week-card completed" data-week="3">
+        <div class="week-header"><span class="week-num">Week 3</span><div class="week-check done" onclick="toggleWeek(this,3)">✓</div></div>
+        <div class="week-topic">Google Analytics Basics</div>
+        <div class="week-platform">▶️ YouTube + Google</div>
+        <div class="week-hours">3 hrs total</div>
+      </div>
+      <div class="week-card" style="border-color:var(--pink);" data-week="4">
+        <div class="week-header"><span class="week-num">Week 4 — Current</span><div class="week-check" onclick="toggleWeek(this,4)"></div></div>
+        <div class="week-topic">Social Media Strategy</div>
+        <div class="week-platform">📘 LinkedIn Learning</div>
+        <div class="week-hours">4 hrs total</div>
+      </div>
+      <div class="week-card" data-week="5">
+        <div class="week-header"><span class="week-num">Week 5</span><div class="week-check" onclick="toggleWeek(this,5)"></div></div>
+        <div class="week-topic">Content Marketing &amp; SEO</div>
+        <div class="week-platform">🎓 Coursera</div>
+        <div class="week-hours">5 hrs total</div>
+      </div>
+      <div class="week-card" data-week="6">
+        <div class="week-header"><span class="week-num">Week 6</span><div class="week-check" onclick="toggleWeek(this,6)"></div></div>
+        <div class="week-topic">Email Marketing Tools</div>
+        <div class="week-platform">▶️ YouTube</div>
+        <div class="week-hours">3 hrs total</div>
+      </div>
+      <div class="week-card" data-week="7">
+        <div class="week-header"><span class="week-num">Week 7</span><div class="week-check" onclick="toggleWeek(this,7)"></div></div>
+        <div class="week-topic">Interview Preparation</div>
+        <div class="week-platform">📘 LinkedIn Learning</div>
+        <div class="week-hours">4 hrs total</div>
+      </div>
+      <div class="week-card" data-week="8">
+        <div class="week-header"><span class="week-num">Week 8</span><div class="week-check" onclick="toggleWeek(this,8)"></div></div>
+        <div class="week-topic">Job Application Sprint</div>
+        <div class="week-platform">🌐 Multiple Platforms</div>
+        <div class="week-hours">6 hrs total</div>
+      </div>
+    </div>
+    <div class="roadmap-actions">
+      <button class="btn-primary" style="max-width:230px;" onclick="downloadRoadmap()">↓ Download Roadmap PDF</button>
+      <button class="btn-secondary" style="max-width:210px;" onclick="markNextWeek()">Mark Next Week Complete</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 9: RESUME BUILDER -->
+<div id="screen-resume" class="screen">
+  <nav class="inner-nav">
+    <div class="inner-nav-logo" onclick="goTo('screen-dashboard')">CareerGap <span>AI</span></div>
+    <div class="inner-nav-links">
+      <button class="inner-nav-link" onclick="goTo('screen-dashboard')">Dashboard</button>
+      <button class="inner-nav-link active">Resume Builder</button>
+      <button class="inner-nav-link" onclick="goTo('screen-roadmap')">Roadmap</button>
+    </div>
+  </nav>
+  <div class="resume-layout">
+    <div class="resume-editor">
+      <div style="display:flex;align-items:center;margin-bottom:16px;">
+        <h3 style="font-size:16px;font-weight:700;">Edit Your Resume</h3>
+        <span class="unsaved-dot" id="unsaved-dot"></span>
+        <span style="font-size:11px;color:var(--grey);margin-left:8px;" id="save-status">All changes saved</span>
+      </div>
+      <div class="template-toggles">
+        <button class="template-btn active" onclick="switchTemplate(this,'t1')">Template 1</button>
+        <button class="template-btn" onclick="switchTemplate(this,'t2')">Template 2</button>
+        <button class="template-btn" onclick="switchTemplate(this,'t3')">Template 3</button>
+      </div>
+      <div class="resume-section">
+        <div class="resume-section-title">Personal Info</div>
+        <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="r-name" value="Priya Sharma" oninput="updatePreview()"/></div>
+        <div class="form-group"><label class="form-label">Job Title</label><input class="form-input" id="r-role" value="Marketing Manager" oninput="updatePreview()"/></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="r-email" value="priya.sharma@email.com" oninput="updatePreview()"/></div>
+        <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="r-phone" value="+91 98765 43210" oninput="updatePreview()"/></div>
+      </div>
+      <div class="resume-section">
+        <div class="resume-section-title">Professional Summary</div>
+        <textarea class="form-textarea" id="r-summary" style="min-height:80px;" oninput="updatePreview()">Results-driven marketing professional with 6+ years of experience in digital marketing and brand strategy. Returning to the workforce with refreshed skills and a wealth of real-world experience gained during a purposeful career break.</textarea>
+      </div>
+      <div class="resume-section">
+        <div class="resume-section-title">Career Break Section <span class="ai-tag">AI Generated</span></div>
+        <textarea class="ai-field" id="r-gap" oninput="updatePreview()">Between 2022 and 2024, I took an intentional career break to serve as the primary caregiver for my two young children — a role that deepened my skills in time management, crisis response, and empathetic communication. I also managed household finances, volunteered with a local NGO, and completed online marketing certifications.</textarea>
+      </div>
+      <div class="resume-section">
+        <div class="resume-section-title">Skills</div>
+        <textarea class="form-textarea" id="r-skills" oninput="updatePreview()">Digital Marketing, SEO/SEM, Google Analytics, Social Media Strategy, Project Management, Financial Planning, Team Coordination, Content Creation</textarea>
+      </div>
+      <div class="resume-section">
+        <div class="resume-section-title">Work Experience</div>
+        <textarea class="form-textarea" id="r-exp" style="min-height:100px;" oninput="updatePreview()">Marketing Manager — ABC Corp (2016–2022)
+Led digital campaigns reaching 2M+ users. Managed a team of 8. Increased brand engagement by 40%.</textarea>
+      </div>
+    </div>
+    <div class="resume-preview-pane">
+      <h3 style="font-size:14px;font-weight:600;color:var(--grey);margin-bottom:16px;text-transform:uppercase;letter-spacing:0.5px;">Live Preview</h3>
+      <div class="resume-preview-card" id="resume-preview-card">
+        <div class="resume-name-preview" id="prev-name">Priya Sharma</div>
+        <div class="resume-role-preview" id="prev-role">Marketing Manager</div>
+        <div style="font-size:12px;color:var(--grey);" id="prev-contact">priya.sharma@email.com • +91 98765 43210</div>
+        <div class="resume-divider"></div>
+        <div class="resume-section-head">Professional Summary</div>
+        <div class="resume-body-text" id="prev-summary">Results-driven marketing professional with 6+ years of experience in digital marketing and brand strategy.</div>
+        <div class="resume-divider"></div>
+        <div class="resume-section-head">Work Experience</div>
+        <div class="resume-body-text" id="prev-exp" style="white-space:pre-line;">Marketing Manager — ABC Corp (2016–2022)
+Led digital campaigns reaching 2M+ users. Managed a team of 8.</div>
+        <div class="resume-divider"></div>
+        <div class="resume-section-head">Career Break (2022 – 2024)</div>
+        <div class="resume-gap-highlight" id="prev-gap">Between 2022 and 2024, I took an intentional career break to serve as primary caregiver for my two young children — developing crisis management, financial planning, and team coordination skills alongside online marketing certifications.</div>
+        <div class="resume-divider"></div>
+        <div class="resume-section-head">Core Skills</div>
+        <div class="resume-body-text" id="prev-skills">Digital Marketing • SEO/SEM • Google Analytics • Social Media Strategy • Project Management</div>
+      </div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <button class="btn-primary" style="max-width:180px;" onclick="downloadResumePDF()">↓ Download PDF</button>
+    <button class="btn-secondary" style="max-width:180px;" onclick="downloadResumeDOCX()">↓ Download DOCX</button>
+    <button class="btn-outline" style="max-width:160px;" onclick="shareResume()">🔗 Share Link</button>
+    <button class="btn-outline" style="max-width:160px;" onclick="autoSaveResume()">💾 Save Draft</button>
+  </div>
+</div>
+
+<!-- SCREEN 10: CHATBOT -->
+<div id="screen-chatbot" class="screen">
+  <div class="chat-header">
+    <div class="bot-avatar">🤖</div>
+    <div>
+      <div class="chat-title">Mock Interview Mode</div>
+      <div style="display:flex;gap:8px;margin-top:3px;">
+        <span class="chat-mode-badge"><span class="online-dot"></span>HR Style Practice</span>
+        <span style="font-size:11px;background:#FEF3E2;color:#B8720A;padding:3px 10px;border-radius:20px;font-weight:600;">Future Scope</span>
+      </div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:8px;">
+      <button class="btn-outline" style="padding:6px 12px;font-size:12px;" onclick="resetInterview()">↺ Restart</button>
+      <button style="padding:6px 12px;font-size:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:none;cursor:pointer;color:var(--grey);" onclick="goTo('screen-dashboard')">← Back</button>
+    </div>
+  </div>
+  <div class="chat-messages" id="chat-msgs">
+    <div class="bubble bot">Hello Priya! I'm your AI-powered HR interview coach. I'll simulate real recruiter questions and give you instant feedback on each response. This session covers 5 key questions.</div>
+    <div class="bubble bot">Let's begin. <strong>Q1/5: Tell me about your career break and what you did during that time.</strong></div>
+  </div>
+  <div class="chat-input-bar">
+    <input class="chat-input" placeholder="Type your answer and press Enter..." id="chat-input-field" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"/>
+    <button class="send-btn" id="send-chat-btn" onclick="sendChat()">→</button>
+  </div>
+</div>
+
+<!-- SCREEN 11: RESOURCES -->
+<div id="screen-resources" class="screen">
+  <nav class="inner-nav">
+    <div class="inner-nav-logo" onclick="goTo('screen-dashboard')">CareerGap <span>AI</span></div>
+    <div class="inner-nav-links">
+      <button class="inner-nav-link" onclick="goTo('screen-dashboard')">Dashboard</button>
+      <button class="inner-nav-link active">Resources</button>
+      <button class="inner-nav-link" onclick="goTo('screen-roadmap')">Roadmap</button>
+    </div>
+  </nav>
+  <div class="resources-layout">
+    <h2 class="feature-heading">Learn, grow, and come back stronger</h2>
+    <p class="feature-sub">Curated resources handpicked for women returning to work</p>
+    <div class="filter-bar">
+      <button class="filter-chip active" onclick="filterResources('all',this)">All</button>
+      <button class="filter-chip" onclick="filterResources('resume',this)">Resume Tips</button>
+      <button class="filter-chip" onclick="filterResources('interview',this)">Interview Prep</button>
+      <button class="filter-chip" onclick="filterResources('upskilling',this)">Upskilling</button>
+      <button class="filter-chip" onclick="filterResources('confidence',this)">Confidence</button>
+      <button class="filter-chip" onclick="filterResources('news',this)">Industry News</button>
+    </div>
+    <div class="resources-grid" id="resources-grid">
+      <div class="resource-card" data-cat="resume upskilling" onclick="openResource('https://www.linkedin.com/learning/')">
+        <div class="resource-thumb" style="background:#E8F4FD;">📘</div>
+        <div class="resource-body">
+          <div class="resource-platform">LinkedIn Learning</div>
+          <div class="resource-title">Return to Work: Rebuilding Your Professional Brand</div>
+          <div class="resource-footer"><span class="resource-dur">2.5 hrs</span><span class="bookmark" onclick="toggleBookmark(event,this)">🔖</span></div>
+        </div>
+      </div>
+      <div class="resource-card" data-cat="upskilling" onclick="openResource('https://www.coursera.org/')">
+        <div class="resource-thumb" style="background:#FEF3E2;">🎓</div>
+        <div class="resource-body">
+          <div class="resource-platform">Coursera</div>
+          <div class="resource-title">Digital Marketing Specialisation for Career Changers</div>
+          <div class="resource-footer"><span class="resource-dur">18 hrs</span><span class="bookmark" onclick="toggleBookmark(event,this)">🔖</span></div>
+        </div>
+      </div>
+      <div class="resource-card" data-cat="interview" onclick="openResource('https://www.youtube.com/')">
+        <div class="resource-thumb" style="background:#FDECEA;">▶️</div>
+        <div class="resource-body">
+          <div class="resource-platform">YouTube</div>
+          <div class="resource-title">How to Answer "Tell Me About Your Career Gap" in Interviews</div>
+          <div class="resource-footer"><span class="resource-dur">12 min</span><span class="bookmark" onclick="toggleBookmark(event,this)">🔖</span></div>
+        </div>
+      </div>
+      <div class="resource-card" data-cat="confidence" onclick="openResource('https://hbr.org/')">
+        <div class="resource-thumb" style="background:#EFF7EE;">📝</div>
+        <div class="resource-body">
+          <div class="resource-platform">HBR Article</div>
+          <div class="resource-title">5 Confidence Strategies for Women Re-entering the Workforce</div>
+          <div class="resource-footer"><span class="resource-dur">8 min read</span><span class="bookmark" onclick="toggleBookmark(event,this)">🔖</span></div>
+        </div>
+      </div>
+      <div class="resource-card" data-cat="upskilling" onclick="openResource('https://www.linkedin.com/learning/')">
+        <div class="resource-thumb" style="background:#FDE8EE;">🎯</div>
+        <div class="resource-body">
+          <div class="resource-platform">LinkedIn Learning</div>
+          <div class="resource-title">Project Management Fundamentals for Non-Managers</div>
+          <div class="resource-footer"><span class="resource-dur">4 hrs</span><span class="bookmark" onclick="toggleBookmark(event,this)">🔖</span></div>
+        </div>
+      </div>
+      <div class="resource-card" data-cat="upskilling news" onclick="openResource('https://www.coursera.org/professional-certificates/google-data-analytics')">
+        <div class="resource-thumb" style="background:#F0F0FF;">📊</div>
+        <div class="resource-body">
+          <div class="resource-platform">Coursera</div>
+          <div class="resource-title">Google Data Analytics Certificate — Beginner Friendly</div>
+          <div class="resource-footer"><span class="resource-dur">6 months</span><span class="bookmark" onclick="toggleBookmark(event,this)">🔖</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 12: SETTINGS -->
+<div id="screen-settings" class="screen">
+  <nav class="inner-nav">
+    <div class="inner-nav-logo" onclick="goTo('screen-dashboard')">CareerGap <span>AI</span></div>
+    <div class="inner-nav-links">
+      <button class="inner-nav-link" onclick="goTo('screen-dashboard')">← Back to Dashboard</button>
+    </div>
+  </nav>
+  <div class="settings-layout">
+    <h2 class="feature-heading" style="margin-bottom:24px;">Settings &amp; Profile</h2>
+    <div class="settings-section">
+      <div class="settings-section-title">Profile Photo</div>
+      <div class="avatar-upload" id="avatar-display" onclick="changeAvatar()">PS</div>
+      <p style="font-size:12px;color:var(--grey);">Click to upload a new photo (JPG, PNG up to 5MB)</p>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-title">Personal Information</div>
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" value="Priya Sharma" id="set-name"/></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" value="priya.sharma@email.com" id="set-email"/></div>
+      <div class="form-group"><label class="form-label">Industry Preference</label>
+        <select class="form-select"><option>Marketing &amp; Communications</option><option>Human Resources</option><option>Finance</option><option>Technology</option></select>
+      </div>
+      <button class="btn-primary" style="max-width:200px;" onclick="saveSettings()">Save Changes</button>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-title">Notifications</div>
+      <div class="toggle-row">
+        <div><div class="toggle-label">Roadmap Reminders</div><div class="toggle-desc">Daily nudges to complete your upskilling</div></div>
+        <div class="toggle on" id="tog1" onclick="toggleSwitch('tog1')"></div>
+      </div>
+      <div class="toggle-row">
+        <div><div class="toggle-label">New Resources</div><div class="toggle-desc">Get notified when new content is added</div></div>
+        <div class="toggle on" id="tog2" onclick="toggleSwitch('tog2')"></div>
+      </div>
+      <div class="toggle-row">
+        <div><div class="toggle-label">Job Match Alerts</div><div class="toggle-desc">Be notified of new role matches</div></div>
+        <div class="toggle" id="tog3" onclick="toggleSwitch('tog3')"></div>
+      </div>
+      <div class="toggle-row">
+        <div><div class="toggle-label">Weekly Progress Email</div><div class="toggle-desc">Summary of your weekly progress</div></div>
+        <div class="toggle on" id="tog4" onclick="toggleSwitch('tog4')"></div>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-title">Privacy &amp; Data</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="btn-outline" style="padding:10px 20px;" onclick="exportData()">↓ Export My Data</button>
+        <button class="danger-btn" onclick="confirmDelete()">🗑 Delete Account</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== APP STATE =====
+const APP = {
+  user: { name: 'Priya Sharma', email: '', password: '' },
+  profile: {},
+  tone: 'Warm',
+  completedWeeks: [1,2,3],
+  bookmarks: [],
+  resumeSaved: false,
+  expSaved: false,
+  chatQueue: 0,
+  interviewAnswers: []
+};
+
+const INTERVIEW_QS = [
+  { q: "Tell me about your career break and what you did during that time.", feedback: ["Tone: Professional ✓","Relevance: High ✓","Confidence: Moderate — own it more boldly"], scores: [88,82,65] },
+  { q: "How have you kept your skills current during your career break?", feedback: ["Specificity: Good ✓","Initiative: Strong ✓","Depth: Add more detail"], scores: [84,90,70] },
+  { q: "Why are you returning to work now, and why this role?", feedback: ["Motivation: Clear ✓","Alignment: Strong ✓","Enthusiasm: Excellent ✓"], scores: [90,88,95] },
+  { q: "What challenges do you expect in transitioning back, and how will you handle them?", feedback: ["Self-awareness: High ✓","Problem-solving: Good ✓","Realism: Well-balanced"], scores: [85,80,78] },
+  { q: "Where do you see yourself professionally in the next 2 years?", feedback: ["Vision: Clear ✓","Ambition: Appropriate ✓","Realism: Excellent ✓"], scores: [92,88,90] }
+];
+
+// ===== NAVIGATION =====
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  if(id === 'screen-dashboard') updateDashboard();
+  window.scrollTo(0,0);
+  document.getElementById('nav-dropdown').classList.remove('show');
+}
+
+function setActive(btn) {
+  document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ===== TOAST =====
+function toast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = type; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ===== LOADER =====
+function showLoader(msg='Processing...') {
+  document.getElementById('loader-text').textContent = msg;
+  document.getElementById('loader').classList.add('show');
+}
+function hideLoader() { document.getElementById('loader').classList.remove('show'); }
+
+// ===== MODAL =====
+function showModal(icon, title, body, actionsHTML) {
+  document.getElementById('modal-icon').textContent = icon;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').textContent = body;
+  document.getElementById('modal-actions').innerHTML = actionsHTML;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('show'); }
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if(e.target === this) closeModal();
+});
+
+// ===== AUTH =====
+function validateSignup() {
+  const name = document.getElementById('inp-name').value.trim();
+  const email = document.getElementById('inp-email').value.trim();
+  const pass = document.getElementById('inp-pass').value;
+  let valid = true;
+  if(!name) { showErr('err-name','inp-name'); valid=false; }
+  if(!email || !email.includes('@')) { showErr('err-email','inp-email'); valid=false; }
+  if(pass.length < 8) { showErr('err-pass','inp-pass'); valid=false; }
+  if(!valid) { toast('Please fix the errors above','error'); return; }
+  APP.user.name = name; APP.user.email = email;
+  showLoader('Creating your account...');
+  setTimeout(() => { hideLoader(); toast('Account created! Welcome, '+name.split(' ')[0]+' 🎉','success'); goTo('screen-profile'); }, 1600);
+}
+
+function showErr(errId, inpId) {
+  document.getElementById(errId).classList.add('show');
+  document.getElementById(inpId).classList.add('error');
+}
+function clearErr(errId, inpId) {
+  document.getElementById(errId).classList.remove('show');
+  document.getElementById(inpId).classList.remove('error');
+}
+
+function handleLogin() {
+  showLoader('Signing you in...');
+  setTimeout(() => { hideLoader(); toast('Welcome back, Priya! 👋','success'); goTo('screen-dashboard'); }, 1400);
+}
+
+function googleSignIn() {
+  showLoader('Authenticating with Google...');
+  setTimeout(() => { hideLoader(); toast('Google sign-in successful!','success'); goTo('screen-profile'); }, 1800);
+}
+
+function confirmLogout() {
+  showModal('🚪','Log out?','Are you sure you want to log out of CareerGap AI?',
+    '<button class="btn-primary" onclick="closeModal();showLoader(\'Logging out...\');setTimeout(()=>{hideLoader();goTo(\'screen-splash\');toast(\'Logged out successfully\',\'info\');},1200)" style="max-width:140px;">Log Out</button><button class="btn-outline" onclick="closeModal()" style="flex:1;">Cancel</button>');
+}
+
+// ===== PROFILE =====
+function saveProfile() {
+  const title = document.getElementById('inp-jobtitle').value.trim();
+  const reason = document.getElementById('inp-reason').value;
+  if(!title) { toast('Please enter your last job title','error'); return; }
+  if(!reason) { toast('Please select your reason for career break','error'); return; }
+  showLoader('Saving your profile...');
+  setTimeout(() => { hideLoader(); toast('Profile saved successfully!','success'); goTo('screen-upload'); }, 1200);
+}
+
+document.getElementById('inp-gap-activities').addEventListener('input', function() {
+  document.getElementById('gap-char-count').textContent = this.value.length + ' / 500';
+  if(this.value.length > 500) this.value = this.value.slice(0,500);
+});
+
+// ===== FILE UPLOAD =====
+function triggerUpload() { document.getElementById('file-input').click(); }
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  const allowed = ['.pdf','.doc','.docx'];
+  const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
+  if(!allowed.includes(ext)) { toast('Please upload a PDF, DOC, or DOCX file','error'); return; }
+  simulateUploadProgress(file.name, file.size);
+}
+
+function simulateUploadProgress(name, size) {
+  const bar = document.getElementById('upload-prog-bar');
+  const fill = document.getElementById('upload-prog-fill');
+  bar.classList.add('show'); let w = 0;
+  const interval = setInterval(() => {
+    w += Math.random()*15+5; if(w>=100){ w=100; clearInterval(interval);
+      setTimeout(() => {
+        bar.classList.remove('show');
+        document.getElementById('file-name-display').textContent = name;
+        document.getElementById('file-size-display').textContent = Math.round(size/1024)+' KB • Uploaded successfully';
+        document.getElementById('file-preview').classList.add('show');
+        const btn = document.getElementById('continue-btn');
+        btn.disabled=false; btn.style.opacity='1';
+        toast('Resume uploaded and analysed!','success');
+      }, 300);
+    }
+    fill.style.width = w+'%';
+  }, 120);
+}
+
+function dropFile(e) {
+  e.preventDefault(); dragLeave();
+  const file = e.dataTransfer.files[0];
+  if(!file) return;
+  simulateUploadProgress(file.name, file.size || 248000);
+}
+function dragOver(e) { e.preventDefault(); document.getElementById('upload-zone').classList.add('dragover'); }
+function dragLeave() { document.getElementById('upload-zone').classList.remove('dragover'); }
+function skipUpload() { toast('Skipped — you can upload later from dashboard','info'); goTo('screen-dashboard'); }
+
+// ===== GAP EXPLANATION =====
+let selectedTone = 'Warm';
+function selectTone(btn, tone) {
+  document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected'); selectedTone = tone;
+}
+
+const explanations = {
+  Formal: "During the period from 2022 to 2024, I undertook a planned career break to fulfil primary caregiving responsibilities for my young children. Throughout this time, I maintained professional development through structured online coursework in digital marketing and analytics, and contributed to community initiatives through volunteer coordination at a local NGO. I also managed household financial planning, which strengthened my analytical and resource management capabilities. I am now prepared to re-enter the professional environment and contribute meaningfully to an organisation that values both experience and continuous growth.",
+  Warm: "Between 2022 and 2024, I took an intentional career break to serve as the primary caregiver for my two young children — a role that deepened my skills in time management, crisis response, and empathetic communication. During this period, I also managed our household budget, strengthened my financial planning abilities, and volunteered with a local women's NGO where I coordinated community outreach programmes. I remained engaged with my field by completing online courses in digital marketing and analytics. I am now fully committed to returning to work and bringing this enriched perspective to a dynamic marketing team.",
+  Confident: "My two-year career break was a deliberate, strategic decision — and one I'm proud of. As the primary caregiver for my children, I developed real leadership, crisis management, and financial planning skills that no classroom could replicate. I supplemented this with online digital marketing certifications and led volunteer outreach at a local NGO. I return to the workforce not as someone catching up, but as a professional with a sharper skill set, broader perspective, and clear purpose. I am ready to drive results from day one."
+};
+
+function generateExplanation() {
+  const activities = document.getElementById('exp-activities').value.trim();
+  const role = document.getElementById('exp-role').value.trim();
+  if(!activities) { toast('Please describe your gap activities','error'); return; }
+  const btn = document.getElementById('gen-btn');
+  btn.disabled=true; btn.textContent='Generating...';
+  showLoader('AI is crafting your explanation...');
+  setTimeout(() => {
+    hideLoader(); btn.disabled=false; btn.textContent='✨ Generate Explanation';
+    document.getElementById('preview-text').textContent = explanations[selectedTone] || explanations['Warm'];
+    document.getElementById('exp-saved').style.display='none';
+    toast('Explanation generated!','success');
+  }, 2200);
+}
+
+function regenerateExplanation() {
+  showLoader('Generating a fresh version...');
+  setTimeout(() => {
+    hideLoader();
+    const variants = Object.values(explanations);
+    const curr = document.getElementById('preview-text').textContent;
+    const next = variants.find(v => v !== curr) || variants[1];
+    document.getElementById('preview-text').textContent = next;
+    document.getElementById('exp-saved').style.display='none';
+    toast('New version generated!','success');
+  }, 1800);
+}
+
+function copyExplanation() {
+  const text = document.getElementById('preview-text').textContent;
+  navigator.clipboard.writeText(text).then(() => toast('Copied to clipboard!','success')).catch(()=> toast('Copied!','success'));
+}
+
+function saveExplanation() {
+  showLoader('Saving to your resume...');
+  setTimeout(() => {
+    hideLoader(); APP.expSaved = true;
+    document.getElementById('exp-saved').style.display='block';
+    document.getElementById('r-gap').value = document.getElementById('preview-text').textContent;
+    updatePreview();
+    toast('Saved to your resume!','success');
+  }, 1000);
+}
+
+function markUnsaved(id) { document.getElementById(id).style.display='none'; }
+
+// ===== SKILLS =====
+const skillMap = {
+  'teaching': 'Curriculum Design & Communication',
+  'cooking': 'Resource Management & Creativity',
+  'gardening': 'Planning & Patience',
+  'yoga': 'Mindfulness & Stress Management',
+  'driving': 'Logistics Coordination',
+  'reading': 'Research & Self-Learning',
+  'sewing': 'Attention to Detail',
+  'painting': 'Creative Problem Solving'
+};
+
+function addSkill() {
+  const input = document.getElementById('new-skill-input');
+  const val = input.value.trim();
+  if(!val) { toast('Please enter an activity','error'); return; }
+  showLoader('Mapping your skill with AI...');
+  setTimeout(() => {
+    hideLoader();
+    const lower = val.toLowerCase();
+    let mapped = 'Transferable Workplace Competency';
+    for(const [k,v] of Object.entries(skillMap)) { if(lower.includes(k)) { mapped=v; break; } }
+    if(mapped === 'Transferable Workplace Competency') {
+      const words = val.split(' ');
+      mapped = words[0]+' Skills & '+words[words.length-1]+' Management';
+    }
+    const inCol = document.getElementById('skills-input-col');
+    const outCol = document.getElementById('skills-output-col');
+    const arrCol = document.getElementById('skills-arrow-col');
+    const div1 = document.createElement('div'); div1.className='tag-row';
+    div1.innerHTML='<span class="tag-input">'+val+'</span>';
+    const div2 = document.createElement('div'); div2.className='tag-row';
+    div2.innerHTML='<span class="tag-output">'+mapped+'</span>';
+    const arr = document.createElement('span'); arr.className='arrow'; arr.textContent='→';
+    inCol.appendChild(div1); outCol.appendChild(div2); arrCol.appendChild(arr);
+    input.value='';
+    toast('Skill mapped successfully!','success');
+  }, 1500);
+}
+
+function saveSkillsToProfile() {
+  showLoader('Saving skills to your profile...');
+  setTimeout(() => { hideLoader(); toast('All skills saved to your profile!','success'); }, 1000);
+}
+
+function openJobSearch(role) {
+  showModal('💼','View Jobs for '+role,'We\'ll open LinkedIn Jobs filtered for '+role+' positions that welcome candidates returning from career breaks.',
+    '<button class="btn-primary" onclick="closeModal();window.open(\'https://www.linkedin.com/jobs/search/?keywords='+encodeURIComponent(role)+'\',\'_blank\');toast(\'Opening LinkedIn Jobs...\',\'info\')" style="max-width:180px;">Open LinkedIn Jobs</button><button class="btn-outline" onclick="closeModal()" style="flex:1;">Cancel</button>');
+}
+
+// ===== ROADMAP =====
+function updateSlider(val) {
+  document.getElementById('slider-val').textContent = val+' min/day';
+  toast('Roadmap updated for '+val+' min/day','info');
+}
+
+function updateRoadmapIndustry(val) {
+  showLoader('Regenerating roadmap for '+val+'...');
+  setTimeout(() => { hideLoader(); toast('Roadmap updated for '+val,'success'); }, 1600);
+}
+
+function toggleWeek(el, num) {
+  const card = el.closest('.week-card');
+  const isDone = el.classList.contains('done');
+  if(isDone) {
+    el.classList.remove('done'); el.textContent='';
+    card.classList.remove('completed');
+    APP.completedWeeks = APP.completedWeeks.filter(w => w!==num);
+    toast('Week '+num+' marked incomplete','info');
+  } else {
+    el.classList.add('done'); el.textContent='✓';
+    card.classList.add('completed');
+    if(!APP.completedWeeks.includes(num)) APP.completedWeeks.push(num);
+    toast('🎉 Week '+num+' complete! Great progress!','success');
+  }
+  updateRoadmapProgress();
+}
+
+function updateRoadmapProgress() {
+  const count = APP.completedWeeks.length;
+  const pct = Math.round((count/8)*100);
+  document.getElementById('roadmap-progress-bar').style.width = pct+'%';
+  document.getElementById('roadmap-progress-label').textContent = count+' of 8 weeks complete';
+  document.getElementById('roadmap-metric').innerHTML = pct+' <span class="metric-unit">%</span>';
+}
+
+function markNextWeek() {
+  const next = APP.completedWeeks.length + 1;
+  if(next > 8) { toast('All 8 weeks complete! 🎊','success'); return; }
+  const card = document.querySelector('[data-week="'+next+'"]');
+  if(card) {
+    const check = card.querySelector('.week-check');
+    check.classList.add('done'); check.textContent='✓';
+    card.classList.add('completed');
+    APP.completedWeeks.push(next);
+    updateRoadmapProgress();
+    toast('Week '+next+' marked complete!','success');
+  }
+}
+
+function downloadRoadmap() {
+  showLoader('Generating your roadmap PDF...');
+  setTimeout(() => { hideLoader(); toast('Roadmap PDF downloaded!','success'); }, 2000);
+}
+
+// ===== RESUME BUILDER =====
+let saveTimer;
+function updatePreview() {
+  document.getElementById('prev-name').textContent = document.getElementById('r-name').value || 'Your Name';
+  document.getElementById('prev-role').textContent = document.getElementById('r-role').value || 'Job Title';
+  document.getElementById('prev-contact').textContent = (document.getElementById('r-email').value||'email')+' • '+(document.getElementById('r-phone').value||'phone');
+  document.getElementById('prev-summary').textContent = document.getElementById('r-summary').value;
+  document.getElementById('prev-gap').textContent = document.getElementById('r-gap').value;
+  document.getElementById('prev-exp').textContent = document.getElementById('r-exp').value;
+  const skills = document.getElementById('r-skills').value.split(',').slice(0,6).map(s=>s.trim()).join(' • ');
+  document.getElementById('prev-skills').textContent = skills;
+  document.getElementById('unsaved-dot').classList.add('show');
+  document.getElementById('save-status').textContent = 'Unsaved changes';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(autoSaveResume, 3000);
+}
+
+function autoSaveResume() {
+  document.getElementById('unsaved-dot').classList.remove('show');
+  document.getElementById('save-status').textContent = 'All changes saved';
+}
+
+function switchTemplate(btn, id) {
+  document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const card = document.getElementById('resume-preview-card');
+  const templates = {
+    t1: { bg:'#fff', nameColor:'var(--charcoal)', accent:'var(--pink-dark)', border:'1px solid var(--border)' },
+    t2: { bg:'#F8F6FF', nameColor:'#3D2C8D', accent:'#3D2C8D', border:'1px solid #D8D0F0' },
+    t3: { bg:'#F0F8F4', nameColor:'#1B4D3E', accent:'#1B4D3E', border:'1px solid #B8DDD1' }
+  };
+  const t = templates[id];
+  card.style.background = t.bg; card.style.border = t.border;
+  document.getElementById('prev-name').style.color = t.nameColor;
+  document.getElementById('prev-role').style.color = t.accent;
+  toast('Template '+(id.slice(1))+' applied!','success');
+}
+
+function downloadResumePDF() {
+  showLoader('Generating your resume PDF...');
+  setTimeout(() => { hideLoader(); toast('Resume PDF downloaded!','success'); }, 2200);
+}
+
+function downloadResumeDOCX() {
+  showLoader('Creating Word document...');
+  setTimeout(() => { hideLoader(); toast('Resume DOCX downloaded!','success'); }, 1800);
+}
+
+function shareResume() {
+  const link = 'https://careergap.ai/resume/priya-sharma-'+Math.random().toString(36).slice(2,8);
+  navigator.clipboard.writeText(link).then(()=>{}).catch(()=>{});
+  showModal('🔗','Share Your Resume','Your shareable resume link has been copied to clipboard!',
+    '<button class="btn-primary" onclick="closeModal()" style="max-width:160px;">Done</button>');
+}
+
+// ===== CHATBOT =====
+const chatPillColors = [['green','green','green'],['green','green','amber'],['green','green','green'],['green','green','amber'],['green','green','green']];
+
+function sendChat() {
+  const input = document.getElementById('chat-input-field');
+  const text = input.value.trim();
+  if(!text || APP.chatQueue >= INTERVIEW_QS.length) return;
+  const btn = document.getElementById('send-chat-btn');
+  btn.disabled=true; input.value='';
+  appendBubble(text,'user');
+  const typing = appendTyping();
+  const q = APP.chatQueue;
+  setTimeout(() => {
+    typing.remove();
+    const fb = INTERVIEW_QS[q].feedback;
+    const colors = chatPillColors[q] || ['green','amber','green'];
+    appendFeedback(fb, colors, q);
+    APP.chatQueue++;
+    if(APP.chatQueue < INTERVIEW_QS.length) {
+      setTimeout(() => {
+        appendBubble('<strong>Q'+(APP.chatQueue+1)+'/5: '+INTERVIEW_QS[APP.chatQueue].q+'</strong>','bot',true);
+        btn.disabled=false;
+      }, 800);
+    } else {
+      setTimeout(() => {
+        appendBubble('That completes your mock interview session! Here is your overall assessment:','bot');
+        appendScore();
+        btn.disabled=true;
+        input.placeholder='Interview session complete — restart to try again';
+      }, 800);
+    }
+  }, 1400 + Math.random()*600);
+}
+
+function appendBubble(html, cls, isHTML=false) {
+  const msgs = document.getElementById('chat-msgs');
+  const div = document.createElement('div'); div.className='bubble '+cls;
+  if(isHTML) div.innerHTML=html; else div.textContent=html;
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight; return div;
+}
+
+function appendTyping() {
+  const msgs = document.getElementById('chat-msgs');
+  const div = document.createElement('div'); div.className='bubble typing';
+  div.innerHTML='<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight; return div;
+}
+
+function appendFeedback(pills, colors, idx) {
+  const msgs = document.getElementById('chat-msgs');
+  const div = document.createElement('div'); div.className='feedback-card';
+  div.innerHTML='<div class="feedback-title">Response Feedback — Q'+(idx+1)+'/5</div><div class="feedback-pills">'+
+    pills.map((p,i)=>'<span class="pill '+colors[i]+'">'+p+'</span>').join('')+'</div>';
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
+}
+
+function appendScore() {
+  const msgs = document.getElementById('chat-msgs');
+  const div = document.createElement('div'); div.className='interview-score';
+  div.innerHTML=`<div class="score-title">🏆 Interview Readiness Score</div>
+    <div class="score-row"><div class="score-label">Clarity</div><div class="score-bar-wrap"><div class="score-bar-fill" style="width:88%;background:var(--green-dark)"></div></div><div class="score-val">88%</div></div>
+    <div class="score-row"><div class="score-label">Confidence</div><div class="score-bar-wrap"><div class="score-bar-fill" style="width:74%;background:var(--pink-dark)"></div></div><div class="score-val">74%</div></div>
+    <div class="score-row"><div class="score-label">Relevance</div><div class="score-bar-wrap"><div class="score-bar-fill" style="width:85%;background:var(--green-dark)"></div></div><div class="score-val">85%</div></div>
+    <div style="margin-top:14px;font-size:13px;color:var(--grey);">Top improvement area: Express confidence more boldly when owning your career break.</div>`;
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
+}
+
+function resetInterview() {
+  APP.chatQueue=0;
+  const msgs = document.getElementById('chat-msgs');
+  msgs.innerHTML='<div class="bubble bot">Welcome back! Let\'s run through the mock interview again. I\'ll ask you 5 key HR questions.</div><div class="bubble bot">Let\'s begin. <strong>Q1/5: '+INTERVIEW_QS[0].q+'</strong></div>';
+  document.getElementById('send-chat-btn').disabled=false;
+  document.getElementById('chat-input-field').placeholder='Type your answer and press Enter...';
+  toast('Interview session restarted','info');
+}
+
+// ===== RESOURCES =====
+function filterResources(cat, btn) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.resource-card').forEach(card => {
+    if(cat==='all') { card.style.display='block'; return; }
+    const cats = card.dataset.cat || '';
+    card.style.display = cats.includes(cat) ? 'block' : 'none';
+  });
+}
+
+function openResource(url) {
+  showModal('🔗','Open Resource','This will open the resource in a new tab.',
+    '<button class="btn-primary" onclick="closeModal();window.open(\''+url+'\',\'_blank\');toast(\'Opening resource...\',\'info\')" style="max-width:160px;">Open →</button><button class="btn-outline" onclick="closeModal()" style="flex:1;">Cancel</button>');
+}
+
+function toggleBookmark(e, el) {
+  e.stopPropagation();
+  const isSaved = el.classList.contains('saved');
+  el.classList.toggle('saved');
+  el.textContent = isSaved ? '🔖' : '🔖';
+  el.closest('.resource-card').classList.toggle('bookmarked');
+  toast(isSaved ? 'Bookmark removed' : 'Resource bookmarked!', isSaved ? 'info' : 'success');
+}
+
+// ===== SETTINGS =====
+function saveSettings() {
+  const name = document.getElementById('set-name').value.trim();
+  if(!name) { toast('Please enter your name','error'); return; }
+  showLoader('Saving settings...');
+  setTimeout(() => {
+    hideLoader();
+    document.getElementById('nav-avatar').textContent = name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    toast('Settings saved!','success');
+  }, 1200);
+}
+
+function toggleSwitch(id) {
+  const tog = document.getElementById(id);
+  tog.classList.toggle('on');
+  toast(tog.classList.contains('on') ? 'Notification enabled' : 'Notification disabled','info');
+}
+
+function changeAvatar() {
+  const colors = ['#C97B8A','#639922','#3D7ABF','#8B6DB4','#D4825A'];
+  const c = colors[Math.floor(Math.random()*colors.length)];
+  document.getElementById('avatar-display').style.background = c;
+  toast('Avatar color updated!','success');
+}
+
+function exportData() {
+  showLoader('Preparing your data export...');
+  setTimeout(() => { hideLoader(); toast('Data export ready — check your email','success'); }, 2000);
+}
+
+function confirmDelete() {
+  showModal('⚠️','Delete Account','This will permanently delete your account, resume, and all progress. This cannot be undone.',
+    '<button class="danger-btn" onclick="closeModal();showLoader(\'Deleting account...\');setTimeout(()=>{hideLoader();goTo(\'screen-splash\');toast(\'Account deleted\',\'info\');},2000)" style="padding:12px 20px;font-size:14px;">Delete Forever</button><button class="btn-outline" onclick="closeModal()" style="flex:1;">Keep My Account</button>');
+}
+
+// ===== DASHBOARD UPDATE =====
+function updateDashboard() {
+  document.getElementById('roadmap-metric').innerHTML = Math.round((APP.completedWeeks.length/8)*100)+' <span class="metric-unit">%</span>';
+}
+
+// ===== CLOSE DROPDOWN ON OUTSIDE CLICK =====
+document.addEventListener('click', function(e) {
+  const avatar = document.getElementById('nav-avatar');
+  const dropdown = document.getElementById('nav-dropdown');
+  if(!avatar.contains(e.target)) dropdown.classList.remove('show');
+});
+
+function toggleDropdown() {
+  document.getElementById('nav-dropdown').classList.toggle('show');
+}
+</script>
+</body>
+</html>
